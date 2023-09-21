@@ -6,7 +6,7 @@ pub enum BoardPiece {
 }
 
 
-fn make_empty_board() -> [[BoardPiece; 5]; 5] {
+pub fn make_empty_board() -> [[BoardPiece; 5]; 5] {
     [[BoardPiece::None; 5]; 5]
 }
 
@@ -31,5 +31,9 @@ impl Game {
             }
             println!();
         }
+    }
+
+    pub fn place_piece(&mut self, row: usize, col: usize, piece: BoardPiece) {
+        self.board[row][col] = piece;
     }
 }

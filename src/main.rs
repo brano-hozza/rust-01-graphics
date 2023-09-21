@@ -4,6 +4,8 @@ use sdl2::rect::Rect;
 
 use views::board_view;
 
+use crate::model::game::Game;
+
 mod views;
 mod model;
 
@@ -26,8 +28,16 @@ fn main() -> Result<(), String> {
     };
     canvas.set_draw_color(board_view.empty_color);
 
+    let mut game = Game {
+        board: model::game::make_empty_board(),
+    };
+
+    game.jumble_board();
+
     let mut running = true;
     let mut event_queue = sdl_context.event_pump().unwrap();
+
+    let mut is_red = true;
 
     while running {
         for event in event_queue.poll_iter() {
@@ -35,13 +45,26 @@ fn main() -> Result<(), String> {
                 Event::Quit { .. } => {
                     running = false;
                 }
+                Event::MouseButtonDown { x, y, .. } => {
+                    let row: usize = (5 * x / board_view.screen_area.w).try_into().unwrap();
+                    let col: u32 = (5 * y / board_view.screen_area.h).try_into().unwrap();
+                    println!("Mouse button down at: ({}, {})", row, col);
+                    match is_red {
+                        true => game.place_piece(row, col as usize, model::game::BoardPiece::Red),
+                        false => game.place_piece(row, col as usize, model::game::BoardPiece::Black)
+                    };
+                    is_red = !is_red;
+                }
                 _ => {}
             }
         }
 
-        board_view.render(&mut canvas);
+        board_view.render(&mut canvas, &game.board);
         canvas.present();
     }
+
+    game.print_board();
+
 
     Ok(())
 }
